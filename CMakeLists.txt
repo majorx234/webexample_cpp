@@ -15,8 +15,16 @@ set(HTTP_WORKER_SRC
 	include/http_worker.hpp
 )
 
-add_library(http_worker
-  ${HTTP_WORKER_SRC}
+set(WEB_SERVER_SRC
+	src/web_server.cpp
+	src/server_start.cpp
+	include/web_server.hpp
+)
+
+add_library(http_worker)
+target_sources(http_worker
+	PRIVATE
+	${HTTP_WORKER_SRC}
 )
 target_include_directories(http_worker
 	PRIVATE ${PROJECT_INCLUDE_DIRS}
@@ -24,4 +32,18 @@ target_include_directories(http_worker
 )
 target_link_libraries(http_worker
 	${Boost_LIBRARIES}
+)
+
+add_executable(web_server)
+target_sources(web_server
+	PRIVATE
+  ${WEB_SERVER_SRC}
+)
+target_include_directories(web_server
+	PRIVATE ${PROJECT_INCLUDE_DIRS}
+	PUBLIC ${Boost_INCLUDE_DIRS}
+)
+target_link_libraries(web_server
+	${Boost_LIBRARIES}
+	http_worker
 )
