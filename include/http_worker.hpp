@@ -12,6 +12,7 @@
 #define HTTP_WORKER_HPP
 
 class HttpWorker {
+ public:
   HttpWorker(HttpWorker const &) = delete;
   HttpWorker& operator=(HttpWorker const &) = delete;
   HttpWorker(
