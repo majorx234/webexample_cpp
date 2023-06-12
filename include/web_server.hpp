@@ -2,6 +2,8 @@
 #define WEB_SERVER_HPP
 
 #include <list>
+#include <thread>
+#include <iostream>
 
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/address.hpp>
@@ -17,6 +19,8 @@ class Webserver {
       uint16_t port,
       int num_workers,
       int num_threads);
+  ~Webserver();
+  void start();
  private:
   boost::asio::ip::address host_;
   uint16_t port_;
@@ -25,6 +29,7 @@ class Webserver {
   boost::asio::io_context ioc_;
   boost::asio::ip::tcp::acceptor acceptor_;
   std::list<HttpWorker> workers_;
+  std::vector<std::thread> threads_;
 };
 
 #endif // WEB_SERVER_HPP

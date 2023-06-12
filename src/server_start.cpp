@@ -31,5 +31,7 @@ int main(int argc, const char *argv[])
     numWorkers = std::max<int>(1, std::atoi(argv[3])); 
     numThreads = std::max<int>(1, std::atoi(argv[4])); 
   }
+
   Webserver web_server(host, port, numWorkers, numThreads);
+  web_server.start();
 }
