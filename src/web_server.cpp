@@ -10,7 +10,8 @@ Webserver::Webserver(boost::asio::ip::address host, uint16_t port,
   , acceptor_(ioc_, {host_, port_})
 {
   for (int i = 0; i < num_workers_; i++) {
-    workers_.emplace_back(acceptor_);
+    std::chrono::seconds timeout{60};
+    workers_.emplace_back(acceptor_,timeout);
     workers_.back().start();
   }
   threads_.reserve(size_t(num_threads_));

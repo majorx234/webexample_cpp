@@ -16,16 +16,22 @@ class HttpWorker {
   HttpWorker(HttpWorker const &) = delete;
   HttpWorker& operator=(HttpWorker const &) = delete;
   HttpWorker(
-      boost::asio::ip::tcp::acceptor &acceptor
+      boost::asio::ip::tcp::acceptor &acceptor,
+      std::chrono::seconds timeout
              );
   void start();
+  void accept();
+  void read_request();
+  void process_request();
+  void check_timeout();
  private:
   boost::asio::ip::tcp::acceptor &acceptor_;
   boost::asio::ip::tcp::socket work_socket_;
   boost::beast::flat_buffer data_buffer_;
-  
+
   std::optional<boost::beast::http::request_parser<boost::beast::http::string_body>> parser_;
-                      
+  boost::asio::basic_waitable_timer<std::chrono::steady_clock> req_timeout;
+  std::chrono::seconds timeout_;
 };
 
 #endif // HTTP_WORKER_HPP
