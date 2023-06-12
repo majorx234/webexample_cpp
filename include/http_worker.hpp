@@ -22,7 +22,7 @@ class HttpWorker {
   void start();
   void accept();
   void read_request();
-  void process_request();
+  void process_request(boost::beast::http::request<boost::beast::http::string_body> const &req);
   void check_timeout();
  private:
   boost::asio::ip::tcp::acceptor &acceptor_;

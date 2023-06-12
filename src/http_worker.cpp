@@ -32,6 +32,21 @@ void HttpWorker::accept() {
       });
 }
 
-void HttpWorker::read_request() {}
-void HttpWorker::process_request() {}
+void HttpWorker::read_request() {
+  parser_.emplace();
+  boost::beast::http::async_read(
+      work_socket_,
+      data_buffer_,
+      *parser_,
+      [this](boost::beast::error_code ec, std::size_t) {
+        if (ec) {
+          accept();
+        }
+        else {
+          process_request(parser_->get());
+        }
+      });
+}
+void HttpWorker::process_request(
+    boost::beast::http::request<boost::beast::http::string_body> const &req) {}
 void HttpWorker::check_timeout() {}
