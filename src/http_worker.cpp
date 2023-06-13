@@ -21,36 +21,39 @@ void HttpWorker::accept() {
   work_socket_.close(ec);
   data_buffer_.consume(data_buffer_.size());
   acceptor_.async_accept(
-      work_socket_,
-      [this](boost::beast::error_code ec) {
-        if (ec) {
-          accept();
-        }
-        else {
-          req_timeout.expires_after(timeout_);
-          read_request();
-        }
-      });
+    work_socket_,
+    [this](boost::beast::error_code ec) {
+      if (ec) {
+        accept();
+      }
+      else {
+        req_timeout.expires_after(timeout_);
+        read_request();
+      }
+    }
+  );
 }
 
 void HttpWorker::read_request() {
   parser_.emplace();
   boost::beast::http::async_read(
-      work_socket_,
-      data_buffer_,
-      *parser_,
-      [this](boost::beast::error_code ec, std::size_t) {
-        if (ec) {
-          accept();
-        }
-        else {
-          process_request(parser_->get());
-        }
-      });
+    work_socket_,
+    data_buffer_,
+    *parser_,
+    [this](boost::beast::error_code ec, std::size_t) {
+      if (ec) {
+        accept();
+      }
+      else {
+        process_request(parser_->get());
+      }
+    }
+  );
 }
+
 void HttpWorker::process_request(
-    boost::beast::http::request<boost::beast::http::string_body> const &req) {
-    if (req.method() == boost::beast::http::verb::get && req.target() == "/test") {
+  boost::beast::http::request<boost::beast::http::string_body> const &req) {
+  if (req.method() == boost::beast::http::verb::get && req.target() == "/test") {
     response_.emplace();
     response_->result(boost::beast::http::status::ok);
     response_->set(boost::beast::http::field::server, std::string("Webserver "));
@@ -60,14 +63,15 @@ void HttpWorker::process_request(
     response_->prepare_payload();
     serializer_.emplace(*response_);
     boost::beast::http::async_write(
-        work_socket_,
-        *serializer_,
-        [this](boost::beast::error_code ec, std::size_t) {
-          work_socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_send, ec);
-          serializer_.reset();
-          response_.reset();
-          accept();
-        });
+      work_socket_,
+      *serializer_,
+      [this](boost::beast::error_code ec, std::size_t) {
+        work_socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_send, ec);
+        serializer_.reset();
+        response_.reset();
+        accept();
+      }
+    );
   }
 }
 
