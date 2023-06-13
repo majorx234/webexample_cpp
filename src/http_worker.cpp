@@ -12,7 +12,8 @@ HttpWorker::HttpWorker(
 }
 
 void HttpWorker::start() {
-  
+  accept();
+  check_timeout();
 }
 
 void HttpWorker::accept() {
@@ -48,5 +49,36 @@ void HttpWorker::read_request() {
       });
 }
 void HttpWorker::process_request(
-    boost::beast::http::request<boost::beast::http::string_body> const &req) {}
-void HttpWorker::check_timeout() {}
+    boost::beast::http::request<boost::beast::http::string_body> const &req) {
+    if (req.method() == boost::beast::http::verb::get && req.target() == "/test") {
+    response_.emplace();
+    response_->result(boost::beast::http::status::ok);
+    response_->set(boost::beast::http::field::server, std::string("Webserver "));
+    response_->set(boost::beast::http::field::content_type, "text/plain");
+    response_->set(boost::beast::http::field::access_control_allow_origin, "*");
+    response_->body() = "C++ rules!";
+    response_->prepare_payload();
+    serializer_.emplace(*response_);
+    boost::beast::http::async_write(
+        work_socket_,
+        *serializer_,
+        [this](boost::beast::error_code ec, std::size_t) {
+          work_socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_send, ec);
+          serializer_.reset();
+          response_.reset();
+          accept();
+        });
+  }
+}
+
+void HttpWorker::check_timeout() {
+  if (req_timeout.expiry() <= std::chrono::steady_clock::now())
+  {
+    work_socket_.close();
+    req_timeout.expires_at(std::chrono::steady_clock::time_point::max());
+  }
+  req_timeout.async_wait(
+      [this](boost::beast::error_code) {
+        check_timeout();
+      });
+}

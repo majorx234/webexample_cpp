@@ -31,6 +31,9 @@ class HttpWorker {
 
   std::optional<boost::beast::http::request_parser<boost::beast::http::string_body>> parser_;
   boost::asio::basic_waitable_timer<std::chrono::steady_clock> req_timeout;
+  std::optional<boost::beast::http::response<boost::beast::http::string_body>> response_;
+  std::optional<boost::beast::http::response_serializer<boost::beast::http::string_body>> serializer_;
+
   std::chrono::seconds timeout_;
 };
 
