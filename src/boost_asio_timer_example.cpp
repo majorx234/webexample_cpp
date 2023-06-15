@@ -18,7 +18,11 @@ int main() {
   timer1.expires_from_now(boost::posix_time::seconds(3));
   timer1.async_wait([](const error_code &ec){if(!ec) {std::cout << "3 sec are over" << std::endl;}});
   timer2.expires_from_now(boost::posix_time::seconds(5));
-  timer2.async_wait([](const error_code &ec){if(!ec) {std::cout << "5 sec are over" << std::endl;}});
+  timer2.async_wait([&](const error_code &ec){if(!ec) {
+        std::cout << "5 sec are over" << std::endl;
+        timer3.expires_from_now(boost::posix_time::seconds(6));
+        timer3.async_wait([](const error_code &ec){if(!ec) {std::cout << "6 sec are over" << std::endl;}});
+      }});
   ioservice.run();
   std::cin.get();
   return 0;
