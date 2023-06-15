@@ -21,6 +21,10 @@ set(WEB_SERVER_SRC
 	include/web_server.hpp
 )
 
+set(BOOST_ASIO_TIMER_EXAMPLE_SRC
+  src/boost_asio_timer_example.cpp
+)
+
 add_library(http_worker)
 target_sources(http_worker
 	PRIVATE
@@ -46,4 +50,17 @@ target_include_directories(web_server
 target_link_libraries(web_server
 	${Boost_LIBRARIES}
 	http_worker
+)
+
+add_executable(boost_asio_timer_example)
+target_sources(boost_asio_timer_example
+	PRIVATE
+  ${BOOST_ASIO_TIMER_EXAMPLE_SRC}
+)
+target_include_directories(boost_asio_timer_example
+	PRIVATE ${PROJECT_INCLUDE_DIRS}
+	PUBLIC ${Boost_INCLUDE_DIRS}
+)
+target_link_libraries(boost_asio_timer_example
+	${Boost_LIBRARIES}
 )
